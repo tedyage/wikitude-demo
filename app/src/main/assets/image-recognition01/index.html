@@ -3,10 +3,87 @@
     <title>Image Recognition</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=5,user-scalable=yes"/>
+    <link rel="stylesheet" href="css/index.css"/>
     <script src="https://www.wikitude.com/libs/architect.js"></script>
     <script src="js/ade.js"></script>
-    <script src="js/imageontarget.js?v=1.1"></script>
   </head>
-  <body onLoad="javascript:AR.logger.setHTMLLoggingEnabled(true);">
+  <body onLoad="javascript:AR.logger.activateDebugMode();">
+    <div class="switchButton">
+      <div>
+        <img onclick='return switchButton(0)'/>
+        <img onclick='return switchButton(1)'/>
+        <img onclick='return switchButton(2)'/>
+      </div>
+    </div>
+    <div class="popLayout">
+      <div class="content">
+        <img src="assets/icon_close.png" onclick="return closeContent();"/>
+        <div class="info"><div>
+      </div>
+    </div>
+    <script>
+      var left = (window.outerWidth-document.getElementsByClassName("switchButton")[0].clientWidth)/2;
+      document.getElementsByClassName('switchButton')[0].style.left = left+"px";
+      var height = window.outerHeight;
+      document.getElementsByClassName("popLayout")[0].style.height = height+"px";
+      var paperheight = window.innerWidth*0.9*(718/750);
+      document.getElementsByClassName("content")[0].style.height = paperheight+"px";
+      document.getElementsByClassName("content")[0].style.top = height+"px";
+      var infoheight = paperheight - 27;
+      document.getElementsByClassName("info")[0].style.height = infoheight+"px";
+    </script>
+    <script src="js/imageontarget.js?v=1.1"></script>
+    <script>
+      var buttonArr=["assets/icon_Highlight.png","assets/icon_Picture_Frame.png","assets/icon_Animation.png"];
+      var activeButtonArr=["assets/icon_Highlight_Click.png","assets/icon_Picture_Frame_Click.png","assets/icon_Animation_Click.png"];
+      var activteButtonIndex = 0;
+      var arEffectCount=3;
+
+      var switchButton=function(index){
+        if(index<0||index>=arEffectCount)
+          return false;
+        activteButtonIndex = index;
+        var imgArr = document.getElementsByClassName("switchButton")[0].children[0].children;
+        for(var i=0;i<imgArr.length;i++){
+          var img = imgArr[i];
+          if(i==activteButtonIndex){
+            img.src=activeButtonArr[i];
+          }else{
+            img.src=buttonArr[i];
+          }
+        }
+        switchArEffect();
+        return true;
+      };
+
+      var switchArEffect=function(){
+        switch(activteButtonIndex){
+          case 0:
+            showHighLight();
+            break;
+          case 1:
+            showPictureFrame();
+            break;
+          case 2:
+            showAnimation();
+            break;
+          default:
+            break;
+        }
+      };
+
+      var closeContent = function(){
+        setTimeout(function(){
+          var popLayout = document.getElementsByClassName("popLayout")[0];
+          popLayout.style.display="none";
+          var info = document.getElementsByClassName("info")[0];
+          info.innerHTML="";
+        },500);
+        var content = document.getElementsByClassName("content")[0];
+        content.style.top = window.outerHeight;
+      };
+      switchButton(0);
+
+    </script>
   </body>
 </html>
