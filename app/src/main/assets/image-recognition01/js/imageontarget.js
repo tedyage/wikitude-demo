@@ -1,3 +1,62 @@
+var uri = 'http://11.111.41.189:3001/';
+var arEffectArr = [
+  {
+    name:"HighLight",
+    count:2,
+    info:[{
+      resource:"assets/img_Highlight_L.png",
+      type:"image",
+      translate:{x:-0.38,y:0.25,z:0.0},
+      scale:{x:0.2,y:0.2,z:0.2}
+    },{
+      resource:"assets/img_Highlight_R.png",
+      type:"image",
+      translate:{x:0.3,y:0.38,z:0.0},
+      scale:{x:0.2,y:0.2,z:0.2}
+    }]
+  },{
+    name:"PictureFrame",
+    count:2,
+    info:[
+      {
+        resource:"assets/img_frame01.png",
+        type:"image",
+        translate:{x:0.0,y:0.0,z:0.0},
+        scale:{x:1.2,y:1.25,z:1.0}
+      },{
+        resource:"assets/img_frame02.png",
+        type:"image",
+        translate:{x:0.0,y:0.0,z:0.0},
+        scale:{x:1.36,y:1.4,z:1.0}
+      }
+    ]
+  },{
+    name:"Animation",
+    count:1,
+    info:[{
+      resource:"assets/Mona_Lisa_Animation.mp4",
+      type:"video",
+      translate:{x:0,y:0,z:0},
+      scale:{x:0.75,y:1.0,z:0}
+    }],
+  }
+];
+var highLightDrawableArr={
+  imageDrawableArr:[],
+  htmlDrawableArr:[],
+  videoDrawableArr:[]
+},pictureFrameDrawableArr={
+  imageDrawableArr:[],
+  htmlDrawableArr:[],
+  videoDrawableArr:[]
+},animationDrawableArr={
+  imageDrawableArr:[],
+  htmlDrawableArr:[],
+  videoDrawableArr:[]
+};
+var drawableArr=[];
+var isVideoPlaying = false;
+
 this.targetCollectionResource = new AR.TargetCollectionResource("assets/tracker.wtc", {
     onLoaded:function(){
         AR.logger.info("wtc loaded");
@@ -16,120 +75,244 @@ this.tracker = new AR.ImageTracker(this.targetCollectionResource, {
     }
 });
 
-var iconLocation = new AR.ImageResource("assets/location.png");
-var locationButton1 = new AR.ImageDrawable(iconLocation, 0.0625, {
-  opacity:0.8,
-  translate:{
-    x:-0.02,
-    y:0.32,
-    z:0.2
-  },
-  onClick:function(){
-    if(description1.enabled){
-      description1.enabled = false;
-    }else{
-      description1.enabled = true;
+var initDrawables = function(){
+  for(var i=0;i<arEffectArr.length;i++){
+    var arEffect=arEffectArr[i];
+    if(arEffect.name=="HighLight"){
+      initHighlightEffect(arEffect);
+    }else if(arEffect.name=="PictureFrame"){
+      initPictureFrameEffect(arEffect);
+    }else if(arEffect.name=="Animation"){
+      initAnimationDrawable(arEffect);
     }
   }
-});
-var locationButton2 = new AR.ImageDrawable(iconLocation, 0.0625, {
-  opacity:0.8,
-  translate:{
-    x:-0.03,
-    y:0.23,
-    z:0.2
-  },
-  onClick:function(){
-    if(description2.enabled){
-      description2.enabled = false;
-    }else{
-      description2.enabled = true;
-    }
-  }
-});
-var locationButton3 = new AR.ImageDrawable(iconLocation, 0.0625, {
-  opacity:0.8,
-  translate:{
-    x:-0.05,
-    y:-0.3,
-    z:0.2
-  },
-  onClick:function(){
-    if(description3.enabled){
-      description3.enabled = false;
-    }else{
-      description3.enabled = true;
-    }
-  }
-});
-var description1 = new AR.HtmlDrawable({uri:"http://11.111.41.189:3001/layout1.html"},0.5,{
-  enabled:false,
-  translate:{
-    x:0.3,
-    y:0.32,
-    z:0.4
-  },
-  onClick:function(){
-    AR.context.openInBrowser("http://11.111.41.189:3001/Eyes.html");
-  }
-});
-var description2 = new AR.HtmlDrawable({uri:"http://11.111.41.189:3001/layout2.html"},0.5,{
-  enabled:false,
-  translate:{
-    x:0.3,
-    y:0.05,
-    z:0.4
-  },
-  onClick:function(){
-    AR.context.openInBrowser("http://11.111.41.189:3001/Smile.html");
-  }
-});
-var description3 = new AR.HtmlDrawable({uri:"http://11.111.41.189:3001/layout3.html"},0.5,{
-  enabled:false,
-  viewportHeight: 420,
-  translate:{
-    x:0.3,
-    y:-0.42,
-    z:0.4
-  },
-  onClick:function(){
-    AR.context.openInBrowser("http://11.111.41.189:3001/Hands.html");
-  }
-});
-var isVideoPlaying = false;
-var video = new AR.VideoDrawable("assets/Mona_Lisa.mp4",0.3,{
-  translate:{
-    x:-0.45,
-    y:0.32,
-    z:0.4
-  },
-  onClick:function(){
-    AR.context.openInBrowser("https://www.youtube.com/watch?v=1gUpK9tx2RQ");
-  }
-});
+};
 
-var imageTarget;
+var initHighlightEffect = function(arEffect){
+  for(var j=0;j<arEffect.count;j++){
+    var item = arEffect.info[j];
+    var drawable;
+    if(item==undefined||item==null)
+      continue;
+    if(item.type==="image"){
+      var imageResource = new AR.ImageResource(item.resource);
+      if(item.resource==="assets/img_Highlight_L.png"){
+        drawable = new AR.ImageDrawable(imageResource,1,{
+          enabled:false,
+          translate:item.translate,
+          scale:item.scale,
+          onClick:function(){
+            var info = "<span>一些学者试着讨论为什么不同的人对这个微笑的感觉不同。"+
+            "这些理论有科学性的，也有的从蒙娜丽莎的实际人物和感觉出发。有人说，蒙娜丽莎的微笑只有在斜眼看的时候才看得出来。"+
+            "还有人认为这个微笑如此捉摸不定因为它利用了人的视觉中的干扰。提出蒙娜丽莎是米兰公爵夫人的理论的人说，"+
+            "蒙娜丽莎的微笑是如此悲伤因为这位公爵夫人本人的生活很悲伤，因为她的丈夫如此有权势、是个酒鬼和经常打她。"+
+            "这位公爵夫人自己曾说她是世界上“最不幸的妻子”。</span>";
+            showContentInfo(info);
+          }
+        });
+      }else if(item.resource==="assets/img_Highlight_R.png"){
+        drawable = new AR.ImageDrawable(imageResource,1,{
+          enabled:false,
+          translate:item.translate,
+          scale:item.scale,
+          onClick:function(){
+            var info = "<span>最近有学者指出蒙娜丽莎之所以看起来似笑非笑是因为达芬奇应用了眼睛的错觉。"+
+            "眼睛的中心部位一般对较为亮的区域敏感，而边缘则对较暗的区域敏感。人一般确认笑容时主要是靠嘴唇和眼睛的形态特征判断。"+
+            "而达芬奇就是利用了蒙娜丽莎嘴唇形成的阴影。当你盯着她的眼睛时你不会忽视她的嘴和眼睛，就会觉得她在微笑，"+
+            "而你盯着她的嘴时你会忽视她的嘴和眼睛，就会觉得她没有在微笑。</span>";
+            showContentInfo(info);
+          }
+        });
+      }
+
+      highLightDrawableArr.imageDrawableArr.push(drawable);
+    }else if(item.type==="html"){
+      drawable = new AR.HtmlDrawable({uri:item.resource},1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      highLightDrawableArr.htmlDrawableArr.push(drawable);
+    }else if(item.type==="video"){
+      drawable = new AR.VideoDrawable(item.resource,1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      highLightDrawableArr.videoDrawableArr.push(drawable);
+    }
+    drawableArr.push(drawable);
+  }
+};
+
+var initPictureFrameEffect= function(arEffect){
+  for(var j=0;j<arEffect.count;j++){
+    var item = arEffect.info[j];
+    var drawable;
+    if(item==undefined||item==null)
+      continue;
+    if(item.type==="image"){
+      var imageResource = new AR.ImageResource(item.resource);
+      drawable = new AR.ImageDrawable(imageResource,1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      pictureFrameDrawableArr.imageDrawableArr.push(drawable);
+    }else if(item.type==="html"){
+      drawable = new AR.HtmlDrawable({uri:item.resource},1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      pictureFrameDrawableArr.htmlDrawableArr.push(drawable);
+    }else if(item.type==="video"){
+      drawable = new AR.VideoDrawable(item.resource,1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      pictureFrameDrawableArr.videoDrawableArr.push(drawable);
+    }
+    drawableArr.push(drawable);
+  }
+};
+
+var initAnimationDrawable= function(arEffect){
+  for(var j=0;j<arEffect.count;j++){
+    var item = arEffect.info[j];
+    var drawable;
+    if(item==undefined||item==null)
+      continue;
+    if(item.type==="image"){
+      var imageResource = new AR.ImageResource(item.resource);
+      drawable = new AR.ImageDrawable(imageResource,1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      animationDrawableArr.imageDrawableArr.push(drawable);
+    }else if(item.type==="html"){
+      drawable = new AR.HtmlDrawable({uri:item.resource},1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      animationDrawableArr.htmlDrawableArr.push(drawable);
+    }else if(item.type==="video"){
+      drawable = new AR.VideoDrawable(item.resource,1,{
+        enabled:false,
+        translate:item.translate,
+        scale:item.scale
+      });
+      animationDrawableArr.videoDrawableArr.push(drawable);
+    }
+    drawableArr.push(drawable);
+  }
+};
+
+initDrawables();
+
+var disabledEntireDrawables=function(){
+  drawableArr.forEach(function(element){
+    element.enabled=false;
+  });
+}
+
+var showHighLight = function(){
+  var effect = arEffectArr[0];
+  disabledEntireDrawables();
+  if(highLightDrawableArr.imageDrawableArr.length>0){
+    highLightDrawableArr.imageDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+  if(highLightDrawableArr.htmlDrawableArr.length>0){
+    highLightDrawableArr.htmlDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+  if(highLightDrawableArr.videoDrawableArr.length>0){
+    highLightDrawableArr.videoDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+};
+
+var showPictureFrame = function(){
+  var effect = arEffectArr[0];
+  disabledEntireDrawables();
+  if(pictureFrameDrawableArr.imageDrawableArr.length>0){
+    pictureFrameDrawableArr.imageDrawableArr.forEach(function(element,index){
+      if(index===0)
+        element.enabled=true;
+    });
+  }
+  if(pictureFrameDrawableArr.htmlDrawableArr.length>0){
+    pictureFrameDrawableArr.htmlDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+  if(pictureFrameDrawableArr.videoDrawableArr.length>0){
+    pictureFrameDrawableArr.videoDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+}
+
+var showAnimation = function(){
+  var effect = arEffectArr[0];
+  disabledEntireDrawables();
+  if(animationDrawableArr.imageDrawableArr.length>0){
+    animationDrawableArr.imageDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+  if(animationDrawableArr.htmlDrawableArr.length>0){
+    animationDrawableArr.htmlDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+  if(animationDrawableArr.videoDrawableArr.length>0){
+    animationDrawableArr.videoDrawableArr.forEach(function(element){
+      element.enabled=true;
+    });
+  }
+};
+
+var showContentInfo=function(info){
+  var popLayout = document.getElementsByClassName("popLayout")[0];
+  popLayout.style.display="block";
+  var infoDom = document.getElementsByClassName("info")[0];
+  infoDom.innerHTML=info;
+  var content = document.getElementsByClassName("content")[0];
+  var height = content.clientHeight;
+  content.style.top = window.outerHeight-height;
+};
+
 var lastDistance;
 var page = new AR.ImageTrackable(this.tracker, "*", {
     drawables: {
-        cam: [locationButton1,locationButton2,locationButton3,description1,description2,description3,video]
+        cam: drawableArr,
     },
     onImageRecognized: function(target){
-        if(imageTarget===undefined||imageTarget===null)
-          imageTarget = target;
         AR.logger.info("Image Recognized");
-        if(!isVideoPlaying){
-          video.play(-1);
-          isVideoPlaying=true;
-        }else{
-          video.resume();
-        }
+        animationDrawableArr.videoDrawableArr.forEach(function(element,index){
+          if(!element.playing){
+            element.play(-1);
+            element.playing=true;
+          }else{
+            element.resume();
+          }
+        });
     },
     onImageLost: function(){
         AR.logger.info("Image Lost");
-        video.pause();
+        animationDrawableArr.videoDrawableArr.forEach(function(element,index){
+          element.pause();
+        });
     },
-    distanceToTarget: {
+    /*distanceToTarget: {
         changedThreshold: 1,
         onDistanceChanged: function(distance) {
             if(lastDistance===undefined||lastDistance===null)
@@ -142,5 +325,5 @@ var page = new AR.ImageTrackable(this.tracker, "*", {
               video.translate.y+=diff*0.0005;
             }
         }
-    },
+    },*/
 });
