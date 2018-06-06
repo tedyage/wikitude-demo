@@ -145,11 +145,11 @@ var initHighlightEffect = function(arEffect){
   }
 };
 
+
 var switchFrame = function(direction,drawable){
   var length = pictureFrameDrawableArr.imageDrawableArr.length;
   var currentIndex = pictureFrameDrawableArr.imageDrawableArr.indexOf(drawable);
-  drawable.enabled = false;
-  if(direction === "left"){    
+  if(direction === "left"){
     if(currentIndex<length-1){
       currentIndex++;
     }else{
@@ -162,8 +162,49 @@ var switchFrame = function(direction,drawable){
       currentIndex=length-1;
     }
   }
+  previousPictureFrameDrawable = drawable;
+  //drawable.enabled = false;
   currentPictureFrameDrawable =pictureFrameDrawableArr.imageDrawableArr[currentIndex];
-  currentPictureFrameDrawable.enabled = true;
+  //currentPictureFrameDrawable.enabled = true;
+  translateFrameX(previousPictureFrameDrawable,currentPictureFrameDrawable,direction);
+}
+
+var easingCurve = new AR.EasingCurve('easeInOutQuad');
+
+var translateFrameX = function(previousFrame,currentFrame,direction){
+  var distance = 3;
+  var original = 0.0;
+  previousFrame.translate.x=original;
+  var previousTranslate,currentTranslate;
+  if(direction==="left"){
+    currentFrame.translate.x=original+distance;
+    previousTranslate = new AR.PropertyAnimation(previousFrame,"translate.x",previousFrame.translate.x,original-distance,1000,easingCurve,{
+      onFinish:function(){
+        previousFrame.enabled = false;
+      }
+    });
+    currentTranslate = new AR.PropertyAnimation(currentFrame,"translate.x",currentFrame.translate.x,original,1000,easingCurve,{
+      onStart:function(){
+        currentFrame.enabled = true;
+      }
+    });
+  }else{
+    currentFrame.translate.x=original-distance;
+    previousTranslate = new AR.PropertyAnimation(previousFrame,"translate.x",previousFrame.translate.x,original+distance,1000,easingCurve,{
+      onFinish:function(){
+        previousFrame.enabled = false;
+      }
+    });
+    currentTranslate = new AR.PropertyAnimation(currentFrame,"translate.x",currentFrame.translate.x,original,1000,easingCurve,{
+      onStart:function(){
+        currentFrame.enabled = true;
+      }
+    });
+  }
+  previousTranslate.start();
+  currentTranslate.start();
+  //var animateGroup = new AR.AnimationGroup("parallel",[currentTranslate]);
+  //animateGroup.start();
 }
 
 var previousX=0;
@@ -183,9 +224,9 @@ var initPictureFrameEffect= function(arEffect){
         translate:item.translate,
         scale:item.scale,
         onDragBegan:function(x,y){
+          AR.logger.info("previousX is "+x);
           oneFingerGestureAllowed = true;
-          previousX=x;
-          previousY=y;
+          previousX=0;
         },
         onDragChanged:function(x,y){
           if(oneFingerGestureAllowed){
@@ -198,6 +239,7 @@ var initPictureFrameEffect= function(arEffect){
         onDragEnded:function(x,y){
           speed = maxSpeed;
           if(speed>gestureSpeed){
+            AR.logger.info("currentX is "+x);
             if(x>previousX){
               switchFrame("right",currentPictureFrameDrawable);
             }else{
@@ -205,7 +247,6 @@ var initPictureFrameEffect= function(arEffect){
             }
           }
           previousX = 0;
-          previousY = 0;
           speed = 0;
         },
       });
@@ -290,7 +331,7 @@ var showHighLight = function(){
   }
 };
 
-var currentPictureFrameDrawable;
+var previousPictureFrameDrawable,currentPictureFrameDrawable;
 var showPictureFrame = function(){
   var effect = arEffectArr[0];
   disabledEntireDrawables();
