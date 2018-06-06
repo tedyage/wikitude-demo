@@ -1,0 +1,51 @@
+body{
+  margin:0;
+  overflow-y:hidden;
+}
+.switchButton{
+  width:220px;
+  margin:0 auto;
+  position:absolute;
+  bottom:5px;
+}
+.switchButton img{
+  width:50px;
+  margin: 0 10px;
+}
+.popLayout{
+  width:100%;
+  background-color:rgba(204,204,204,0.5);
+  position:relative;
+  display:none;
+}
+.popLayout>.content{
+  width:100%;
+  background-image:url("../assets/img_paper.png");
+  background-repeat: no-repeat;
+  background-size:cover;
+  position:absolute;
+  bottom:0;
+  transition-property: top;
+  transition-duration: 0.5s;
+  -moz-transition-property: top; /* Firefox 4 */
+  -moz-transition-duration: 0.5s; /* Firefox 4 */
+  -webkit-transition-property: top; /* Safari and Chrome */
+  -webkit-transition-duration: 0.5s; /* Safari and Chrome */
+  -o-transition-property: top; /* Opera */
+  -o-transition-duration: 0.5s; /* Opera */
+}
+.popLayout>.content>img{
+  margin-top:15px;
+  float:right;
+  margin-right:10px;
+}
+.popLayout>.content>.info{
+  width:100%;
+  overflow-y: scroll;
+}
+.popLayout>.content>.info>span{
+  margin: 0 15px;
+  display: inline-block;
+  line-height: 25px;
+  overflow-y: scroll;
+}
