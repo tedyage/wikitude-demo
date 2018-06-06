@@ -36,8 +36,8 @@ var arEffectArr = [
     info:[{
       resource:"assets/Mona_Lisa_Animation.mp4",
       type:"video",
-      translate:{x:0,y:0,z:0},
-      scale:{x:0.75,y:1.0,z:0}
+      translate:{x:-0.01,y:0,z:0},
+      scale:{x:1.02,y:1.01,z:0}
     }],
   }
 ];
@@ -145,6 +145,31 @@ var initHighlightEffect = function(arEffect){
   }
 };
 
+var switchFrame = function(direction,drawable){
+  var length = pictureFrameDrawableArr.imageDrawableArr.length;
+  var currentIndex = pictureFrameDrawableArr.imageDrawableArr.indexOf(drawable);
+  drawable.enabled = false;
+  if(direction === "left"){    
+    if(currentIndex<length-1){
+      currentIndex++;
+    }else{
+      currentIndex=0;
+    }
+  }else{
+    if(currentIndex>0){
+      currentIndex--;
+    }else{
+      currentIndex=length-1;
+    }
+  }
+  currentPictureFrameDrawable =pictureFrameDrawableArr.imageDrawableArr[currentIndex];
+  currentPictureFrameDrawable.enabled = true;
+}
+
+var previousX=0;
+var gestureTime = 0.5;
+var maxSpeed=0, speed = 0,gestureSpeed = 0.2;
+var oneFingerGestureAllowed = false;
 var initPictureFrameEffect= function(arEffect){
   for(var j=0;j<arEffect.count;j++){
     var item = arEffect.info[j];
@@ -156,7 +181,33 @@ var initPictureFrameEffect= function(arEffect){
       drawable = new AR.ImageDrawable(imageResource,1,{
         enabled:false,
         translate:item.translate,
-        scale:item.scale
+        scale:item.scale,
+        onDragBegan:function(x,y){
+          oneFingerGestureAllowed = true;
+          previousX=x;
+          previousY=y;
+        },
+        onDragChanged:function(x,y){
+          if(oneFingerGestureAllowed){
+            var currentSpeed = Math.abs(x-previousX)/gestureTime;
+            if(currentSpeed>maxSpeed){
+              maxSpeed = currentSpeed;
+            }
+          }
+        },
+        onDragEnded:function(x,y){
+          speed = maxSpeed;
+          if(speed>gestureSpeed){
+            if(x>previousX){
+              switchFrame("right",currentPictureFrameDrawable);
+            }else{
+              switchFrame("left",currentPictureFrameDrawable);
+            }
+          }
+          previousX = 0;
+          previousY = 0;
+          speed = 0;
+        },
       });
       pictureFrameDrawableArr.imageDrawableArr.push(drawable);
     }else if(item.type==="html"){
@@ -239,13 +290,16 @@ var showHighLight = function(){
   }
 };
 
+var currentPictureFrameDrawable;
 var showPictureFrame = function(){
   var effect = arEffectArr[0];
   disabledEntireDrawables();
   if(pictureFrameDrawableArr.imageDrawableArr.length>0){
     pictureFrameDrawableArr.imageDrawableArr.forEach(function(element,index){
-      if(index===0)
+      if(index===0){
         element.enabled=true;
+        currentPictureFrameDrawable = element;
+      }
     });
   }
   if(pictureFrameDrawableArr.htmlDrawableArr.length>0){
