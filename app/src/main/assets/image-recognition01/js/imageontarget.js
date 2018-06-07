@@ -59,7 +59,6 @@ var isVideoPlaying = false;
 
 this.targetCollectionResource = new AR.TargetCollectionResource("assets/tracker.wtc", {
     onLoaded:function(){
-        AR.logger.info("wtc loaded");
     },
     onError:function(){
         AR.logger.error("wtc error");
@@ -68,7 +67,6 @@ this.targetCollectionResource = new AR.TargetCollectionResource("assets/tracker.
 
 this.tracker = new AR.ImageTracker(this.targetCollectionResource, {
     onTargetsLoaded: function(){
-        AR.logger.info("tracker loaded");
     },
     onError: function() {
         AR.logger.error("tracker error");
@@ -145,7 +143,6 @@ var initHighlightEffect = function(arEffect){
   }
 };
 
-
 var switchFrame = function(direction,drawable){
   var length = pictureFrameDrawableArr.imageDrawableArr.length;
   var currentIndex = pictureFrameDrawableArr.imageDrawableArr.indexOf(drawable);
@@ -163,9 +160,7 @@ var switchFrame = function(direction,drawable){
     }
   }
   previousPictureFrameDrawable = drawable;
-  //drawable.enabled = false;
   currentPictureFrameDrawable =pictureFrameDrawableArr.imageDrawableArr[currentIndex];
-  //currentPictureFrameDrawable.enabled = true;
   translateFrameX(previousPictureFrameDrawable,currentPictureFrameDrawable,direction);
 }
 
@@ -224,7 +219,6 @@ var initPictureFrameEffect= function(arEffect){
         translate:item.translate,
         scale:item.scale,
         onDragBegan:function(x,y){
-          AR.logger.info("previousX is "+x);
           oneFingerGestureAllowed = true;
           previousX=0;
         },
@@ -239,7 +233,6 @@ var initPictureFrameEffect= function(arEffect){
         onDragEnded:function(x,y){
           speed = maxSpeed;
           if(speed>gestureSpeed){
-            AR.logger.info("currentX is "+x);
             if(x>previousX){
               switchFrame("right",currentPictureFrameDrawable);
             }else{
@@ -312,7 +305,6 @@ var disabledEntireDrawables=function(){
 }
 
 var showHighLight = function(){
-  var effect = arEffectArr[0];
   disabledEntireDrawables();
   if(highLightDrawableArr.imageDrawableArr.length>0){
     highLightDrawableArr.imageDrawableArr.forEach(function(element){
@@ -333,13 +325,19 @@ var showHighLight = function(){
 
 var previousPictureFrameDrawable,currentPictureFrameDrawable;
 var showPictureFrame = function(){
-  var effect = arEffectArr[0];
   disabledEntireDrawables();
   if(pictureFrameDrawableArr.imageDrawableArr.length>0){
+    var enabledIndex = 0;
     pictureFrameDrawableArr.imageDrawableArr.forEach(function(element,index){
-      if(index===0){
+      if(previousPictureFrameDrawable===undefined){
+        if(index===0){
+          element.translate.x=0;
+          element.enabled=true;
+          currentPictureFrameDrawable = element;
+        }
+      }
+      else if(element.translate.x === 0){
         element.enabled=true;
-        currentPictureFrameDrawable = element;
       }
     });
   }
@@ -356,7 +354,6 @@ var showPictureFrame = function(){
 }
 
 var showAnimation = function(){
-  var effect = arEffectArr[0];
   disabledEntireDrawables();
   if(animationDrawableArr.imageDrawableArr.length>0){
     animationDrawableArr.imageDrawableArr.forEach(function(element){
@@ -391,7 +388,6 @@ var page = new AR.ImageTrackable(this.tracker, "*", {
         cam: drawableArr,
     },
     onImageRecognized: function(target){
-        AR.logger.info("Image Recognized");
         animationDrawableArr.videoDrawableArr.forEach(function(element,index){
           if(!element.playing){
             element.play(-1);
